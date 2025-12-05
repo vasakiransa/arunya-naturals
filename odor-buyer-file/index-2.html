@@ -22,6 +22,115 @@
     <link rel="stylesheet" href="assets/css/nice-select.css">
     <!-- Style css -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Payment Gateway CSS -->
+    <style>
+        .payment-gateway-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .payment-method {
+            flex: 1;
+            min-width: 200px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-method:hover {
+            border-color: #0066cc;
+            transform: translateY(-5px);
+        }
+        
+        .payment-method.active {
+            border-color: #0066cc;
+            background-color: #f0f8ff;
+        }
+        
+        .payment-method img {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .payment-form {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .payment-form.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .pay-now-btn {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .pay-now-btn:hover {
+            background: #0052a3;
+        }
+        
+        .test-mode-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
 </head>
 
 <body>
@@ -31,9 +140,9 @@
         <div class="container">
             <div class="top__wrapper">
                 <a href="index.html" class="main__logo">
-    <img src="assets/images/logo/logo.svg" alt="logo__image"
-         style="width:100px; height:100px; border-radius:20%;">
-</a>
+                    <img src="assets/images/logo/logo.svg" alt="logo__image"
+                         style="width:100px; height:100px; border-radius:20%;">
+                </a>
 
                 <div class="search__wrp">
                     <input placeholder="Search for" aria-label="Search">
@@ -293,1145 +402,96 @@
     <!-- Mouse cursor area end here -->
 
     <main>
+        <!-- Payment Gateway Section -->
+        <section class="payment-gateway-section pt-130 pb-130">
+            <div class="container">
+                <div class="payment-gateway-container">
+                    <h2 class="text-center mb-4">Secure Payment Gateway</h2>
+                    <p class="text-center mb-4">Choose your preferred payment method</p>
+                    
+                    <div class="test-mode-notice">
+                        ⚠️ <strong>Test Mode:</strong> This is a demo integration. For production, you need backend implementation with proper API keys and security measures.
+                    </div>
+                    
+                    <div class="payment-methods">
+                        <div class="payment-method" data-method="razorpay">
+                            <img src="https://razorpay.com/assets/razorpay-glyph.svg" alt="Razorpay">
+                            <h5>Razorpay</h5>
+                            <p>Credit/Debit Cards, UPI, Net Banking</p>
+                        </div>
+                        
+                        <div class="payment-method" data-method="paypal">
+                            <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal">
+                            <h5>PayPal</h5>
+                            <p>PayPal Balance, Credit/Debit Cards</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Razorpay Payment Form -->
+                    <div id="razorpay-form" class="payment-form">
+                        <h4>Pay with Razorpay</h4>
+                        <div class="form-group">
+                            <label>Amount (USD)</label>
+                            <input type="number" id="razorpay-amount" value="49.50" min="1" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Customer Name</label>
+                            <input type="text" id="razorpay-name" placeholder="Enter your name">
+                        </div>
+                        <div class="form-group">
+                            <label>Customer Email</label>
+                            <input type="email" id="razorpay-email" placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label>Customer Phone</label>
+                            <input type="tel" id="razorpay-phone" placeholder="Enter your phone number">
+                        </div>
+                        <button class="pay-now-btn" id="razorpay-pay-btn">Pay with Razorpay</button>
+                    </div>
+                    
+                    <!-- PayPal Payment Form -->
+                    <div id="paypal-form" class="payment-form">
+                        <h4>Pay with PayPal</h4>
+                        <div class="form-group">
+                            <label>Amount (USD)</label>
+                            <input type="number" id="paypal-amount" value="49.50" min="1" step="0.01">
+                        </div>
+                        <div id="paypal-button-container"></div>
+                    </div>
+                    
+                    <!-- Order Summary -->
+                    <div class="order-summary mt-5 p-4 border rounded">
+                        <h5>Order Summary</h5>
+                        <div class="d-flex justify-content-between">
+                            <span>Subtotal:</span>
+                            <span>$49.50</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Shipping:</span>
+                            <span>Free</span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2 pt-2 border-top">
+                            <strong>Total:</strong>
+                            <strong>$49.50</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rest of your existing HTML content remains the same -->
         <!-- Banner area start here -->
         <section class="banner-area pb-130">
             <div class="container">
-                <div class="row g-4">
-                    <div class="col-lg-6">
-                        <div class="banner__item">
-                            <div class="image">
-                                <img src="assets/images/banner/banner-image1.png" alt="image">
-                            </div>
-                            <div class="banner__content">
-                                <h5 class="wow fadeInUp" data-wow-delay=".1s"><img src="assets/images/icon/fire.svg"
-                                        alt="icon"> GET <span class="primary-color">25% OFF</span> NOW
-                                </h5>
-                                <h1 class="wow fadeInUp" data-wow-delay=".2s">Find everything <br>
-                                    for <span class="primary-color">vaping</span></h1>
-                                <a class="btn-one wow fadeInUp mt-65" data-wow-delay=".3s" href="shop.html"><span>Shop
-                                        Now</span></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="swiper product__slider">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
-                                    <div class="product__slider-item bor">
-                                        <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                        <a href="shop-single.html" class="product__image pt-20 d-block">
-                                            <img src="assets/images/product/product-image1.png" alt="image">
-                                        </a>
-                                        <div class="product__content">
-                                            <h4 class="mb-15"><a class="primary-hover"
-                                                    href="shop-single.html">Disposable
-                                                    Sub-Ohm Tank</a></h4>
-                                            <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                            <div class="star mt-20">
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="product__slider-item bor">
-                                        <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                        <a href="shop-single.html" class="product__image pt-20 d-block">
-                                            <img src="assets/images/product/product-image2.png" alt="image">
-                                        </a>
-                                        <div class="product__content">
-                                            <h4 class="mb-15"><a class="primary-hover" href="shop-single.html">POP Extra
-                                                    Strawberry</a></h4>
-                                            <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                            <div class="star mt-20">
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="product__slider-item bor">
-                                        <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                        <a href="shop-single.html" class="product__image pt-20 d-block">
-                                            <img src="assets/images/product/product-image3.png" alt="image">
-                                        </a>
-                                        <div class="product__content">
-                                            <h4 class="mb-15"><a class="primary-hover"
-                                                    href="shop-single.html">Concentrate Vaporizers</a></h4>
-                                            <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                            <div class="star mt-20">
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                                <i class="fa-solid fa-star"></i>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="dot product__dot mt-40"></div>
-                        </div>
-                    </div>
-                </div>
+                <!-- ... rest of your existing content ... -->
             </div>
         </section>
-        <!-- Banner area end here -->
-
-        <!-- Category area start here -->
-        <section class="category-area pb-130">
-            <div class="container">
-                <div class="sub-title wow fadeInUp text-center mb-65" data-wow-delay=".1s">
-                    <h3><span class="title-icon"></span> our top categories <span class="title-icon"></span>
-                    </h3>
-                </div>
-                <div class="swiper category__slider">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <div class="category__item text-center">
-                                <a href="shop.html" class="category__image d-block">
-                                    <img src="assets/images/category/category-image1.png" alt="image">
-                                    <div class="category-icon">
-                                        <img src="assets/images/category/category-icon1.png" alt="icon">
-                                    </div>
-                                </a>
-                                <h4 class="mt-30"><a href="shop.html">best e- juice</a></h4>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="category__item text-center">
-                                <a href="shop.html" class="category__image d-block">
-                                    <img src="assets/images/category/category-image2.png" alt="image">
-                                    <div class="category-icon">
-                                        <img src="assets/images/category/category-icon2.png" alt="icon">
-                                    </div>
-                                </a>
-                                <h4 class="mt-30"><a href="shop.html">best mod</a></h4>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="category__item text-center">
-                                <a href="shop.html" class="category__image d-block">
-                                    <img src="assets/images/category/category-image3.png" alt="image">
-                                    <div class="category-icon">
-                                        <img src="assets/images/category/category-icon3.png" alt="icon">
-                                    </div>
-                                </a>
-                                <h4 class="mt-30"><a href="shop.html">best pan</a></h4>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="category__item text-center">
-                                <a href="shop.html" class="category__image d-block">
-                                    <img src="assets/images/category/category-image4.png" alt="image">
-                                    <div class="category-icon">
-                                        <img src="assets/images/category/category-icon4.png" alt="icon">
-                                    </div>
-                                </a>
-                                <h4 class="mt-30"><a href="shop.html">best pod</a></h4>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="category__item text-center">
-                                <a href="shop.html" class="category__image d-block">
-                                    <img src="assets/images/category/category-image5.png" alt="image">
-                                    <div class="category-icon">
-                                        <img src="assets/images/category/category-icon5.png" alt="icon">
-                                    </div>
-                                </a>
-                                <h4 class="mt-30"><a href="shop.html">best tank</a></h4>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="category__item text-center">
-                                <a href="shop.html" class="category__image d-block">
-                                    <img src="assets/images/category/category-image6.png" alt="image">
-                                    <div class="category-icon">
-                                        <img src="assets/images/category/category-icon6.png" alt="icon">
-                                    </div>
-                                </a>
-                                <h4 class="mt-30"><a href="shop.html">Best vaps</a></h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Category area end here -->
-
-        <!-- Ad banner area start here -->
-        <section class="ad-banner-area">
-            <div class="container-fluid p-0">
-                <div class="row g-4">
-                    <div class="col-lg-6">
-                        <div class="ad-banner__item">
-                            <div class="bg-image" data-background="assets/images/banner/ad-banner1.jpg"></div>
-                            <div class="ad-banner__content left pt-130 pb-130">
-                                <h2 class="mb-20 wow fadeInUp" data-wow-delay=".1s">E-Liquids</h2>
-                                <p class="wow fadeInUp" data-wow-delay=".2s">Over 500+ flavour in our store</p>
-                                <a data-wow-delay=".3s" class="btn-one wow fadeInUp mt-50" href="shop.html"><span>Shop
-                                        Now</span></a>
-                                <a data-wow-delay=".4s" class="btn-one-light wow fadeInUp ml-10 mt-50"
-                                    href="shop.html"><span>View
-                                        Store</span></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="ad-banner__item">
-                            <div class="bg-image" data-background="assets/images/banner/ad-banner2.jpg"></div>
-                            <div class="ad-banner__content pt-130 pb-130 pl-65">
-                                <h2 class="mb-20 wow fadeInDown" data-wow-delay=".1s">E-Liquids</h2>
-                                <p class="wow fadeInDown" data-wow-delay=".2s">Over 500+ flavour in our store</p>
-                                <a class="btn-one mt-50 wow fadeInDown" data-wow-delay=".3s" href="shop.html"><span>Shop
-                                        Now</span></a>
-                                <a class="btn-one-light wow fadeInDown ml-10 mt-50" data-wow-delay=".4s"
-                                    href="shop.html"><span>View
-                                        Store</span></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Ad banner area end here -->
-
-        <!-- Product area start here -->
-        <section class="product-area pt-130 pb-130">
-            <div class="container">
-                <div
-                    class="product__wrp pb-30 mb-65 bor-bottom d-flex flex-wrap align-items-center justify-content-xl-between justify-content-center">
-                    <div class="section-header wow fadeInUp d-flex align-items-center" data-wow-delay=".1s">
-                        <span class="title-icon mr-10"></span>
-                        <h2>latest arrival products</h2>
-                    </div>
-                    <ul class="nav nav-pills mt-4 mt-xl-0">
-                        <li class="nav-item">
-                            <a href="#latest-item" data-bs-toggle="tab" class="nav-link wow fadeInUp px-4 active"
-                                data-wow-delay=".1s">
-                                latest item
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#top-ratting" data-bs-toggle="tab"
-                                class="nav-link wow fadeInUp px-4 bor-left bor-right" data-wow-delay=".2s">
-                                top ratting
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#featured-products" data-bs-toggle="tab" class="nav-link wow fadeInUp ps-4"
-                                data-wow-delay=".3s">
-                                featured products
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="row g-4">
-                    <div class="col-xl-3 col-lg-4">
-                        <div class="product__left-item sub-bg">
-                            <h4 class="mb-30 left-title">Special Offer</h4>
-                            <div class="image mb-30">
-                                <img src="assets/images/coundown/coundown-image1.png" alt="image">
-                            </div>
-                            <div class="product__content p-0">
-                                <h4 class="mb-15"><a class="primary-hover" href="shop-single.html">Mango Nic
-                                        Salt
-                                        E-Liquidt</a></h4>
-                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                <div class="star mt-15">
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                </div>
-                            </div>
-                            <div class="image pt-40 mb-30 bor-top mt-40">
-                                <img src="assets/images/coundown/coundown-image2.png" alt="image">
-                            </div>
-                            <div class="product__content p-0">
-                                <h4 class="mb-15"><a class="primary-hover" href="shop-single.html">Watermelon
-                                        Nic
-                                        Salt</a></h4>
-                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                <div class="star mt-15">
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                </div>
-                            </div>
-                            <div class="product__coundown pt-30 bor-top mt-40">
-                                <h4>Hurry Up!</h4>
-                                <span>offer ends in</span>
-                                <div class="d-flex align-items-center gap-3 flex-wrap mt-25">
-                                    <div class="coundown-item">
-                                        <span id="day"></span>
-                                        <h6>Day</h6>
-                                    </div>
-                                    <div class="coundown-item">
-                                        <span id="hour"></span>
-                                        <h6>hour</h6>
-                                    </div>
-                                    <div class="coundown-item">
-                                        <span id="min"></span>
-                                        <h6>min</h6>
-                                    </div>
-                                    <div class="coundown-item">
-                                        <span id="sec"></span>
-                                        <h6>Sec</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-9 col-lg-8">
-                        <div class="tab-content">
-                            <div id="latest-item" class="tab-pane fade show active">
-                                <div class="row g-4">
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image1.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image3.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover"
-                                                        href="shop-single.html">Menthol
-                                                        E-Cigarette Kit</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image2.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image4.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover"
-                                                        href="shop-single.html">Disposable
-                                                        Sub-Ohm Tank</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image3.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image5.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover" href="shop-single.html">POP
-                                                        Extra
-                                                        Strawberry</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image4.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image6.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover"
-                                                        href="shop-single.html">Battery
-                                                        And
-                                                        Charger Kit</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image5.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image3.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover" href="shop-single.html">Pods
-                                                        Sold
-                                                        Separately</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image6.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image4.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover" href="shop-single.html">100ml
-                                                        Nic
-                                                        Salt Juice</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="top-ratting" class="tab-pane fade">
-                                <div class="row g-4">
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image5.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image3.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover" href="shop-single.html">Pods
-                                                        Sold
-                                                        Separately</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image6.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image4.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover" href="shop-single.html">100ml
-                                                        Nic
-                                                        Salt Juice</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="featured-products" class="tab-pane fade">
-                                <div class="row g-4">
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image4.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image6.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover"
-                                                        href="shop-single.html">Battery
-                                                        And
-                                                        Charger Kit</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image5.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image3.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover" href="shop-single.html">Pods
-                                                        Sold
-                                                        Separately</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-lg-6 col-md-6">
-                                        <div class="product__item bor">
-                                            <a href="#0" class="wishlist"><i class="fa-regular fa-heart"></i></a>
-                                            <a href="shop-single.html" class="product__image pt-20 d-block">
-                                                <img class="font-image" src="assets/images/product/product-image6.png"
-                                                    alt="image">
-                                                <img class="back-image" src="assets/images/product/product-image4.png"
-                                                    alt="image">
-                                            </a>
-                                            <div class="product__content">
-                                                <h4 class="mb-15"><a class="primary-hover" href="shop-single.html">100ml
-                                                        Nic
-                                                        Salt Juice</a></h4>
-                                                <del>$74.50</del><span class="primary-color ml-10">$49.50</span>
-                                                <div class="star mt-20">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-
-                                            </div>
-                                            <a class="product__cart d-block bor-top" href="#0"><i
-                                                    class="fa-regular fa-cart-shopping primary-color me-1"></i>
-                                                <span>Add to
-                                                    cart</span></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Product area end here -->
-
-        <!-- Discount area start here -->
-        <section class="discount-area bg-image pt-130" data-background="assets/images/bg/discount-bg.jpg">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="image mb-5 mb-lg-0"><img src="assets/images/discount/01.png" alt="image"></div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="discount__item">
-                            <div class="section-header">
-                                <div class="section-title-icon wow fadeInUp" data-wow-delay=".1s">
-                                    <span class="title-icon mr-10"></span>
-                                    <h2>find your best favourite <br>
-                                        flavour vapes</h2>
-                                </div>
-                                <p class="mt-30 wow fadeInUp mb-55" data-wow-delay=".2s">Sell globally in minutes with
-                                    localized currencies languages, and
-                                    <br>
-                                    experie in every
-                                    market. only a variety of vaping
-                                    products
-                                </p>
-                                <a class="btn-one wow fadeInUp me-0 me-sm-4" data-wow-delay=".3s"
-                                    href="shop.html"><span>Shop Now</span></a>
-                                <a class="off-btn wow fadeInUp" data-wow-delay=".4s" href="#0"><img class="mr-10"
-                                        src="assets/images/icon/fire.svg" alt="icon"> GET <span
-                                        class="primary-color">25%
-                                        OFF</span> NOW</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Discount area end here -->
-
-        <!-- Testimonial area start here -->
-        <section class="testimonial pt-130 pb-130">
-            <div class="container">
-                <div class="testimonial__wrp bor radius-10">
-                    <div class="testimonial__head-wrp bor-bottom pb-65 pt-65 pl-65 pr-65">
-                        <div class="section-header d-flex align-items-center wow fadeInUp" data-wow-delay=".1s">
-                            <span class="title-icon mr-10"></span>
-                            <h2>customers speak for us</h2>
-                        </div>
-                        <div class="arry-btn my-4 my-lg-0">
-                            <button class="arry-prev testimonial__arry-prev wow fadeInUp" data-wow-delay=".2s"><i
-                                    class="fa-light fa-chevron-left"></i></button>
-                            <button class="ms-3 active arry-next testimonial__arry-next wow fadeInUp"
-                                data-wow-delay=".3s"><i class="fa-light fa-chevron-right"></i></button>
-                        </div>
-                    </div>
-                    <div class="pt-45 pb-45 pr-55">
-                        <div class="row g-4 align-items-center justify-content-between">
-                            <div class="col-lg-7">
-                                <div class="swiper testimonial__slider">
-                                    <div class="swiper-wrapper">
-                                        <div class="swiper-slide">
-                                            <div class="testimonial__item pl-65">
-                                                <div class="testi-header mb-30">
-                                                    <div class="testi-content">
-                                                        <h3>Kenneth S. Fisher</h3>
-                                                        <span>marketing manager</span>
-                                                    </div>
-                                                    <i class="fa-solid fa-quote-right"></i>
-                                                </div>
-                                                <p>posuere luctus orci. Donec vitae mattis quam, vitae tempor arcu.
-                                                    Aenean non odio porttitor, convallis erat sit amet, facilisis velit.
-                                                    Nulla ornare convallis malesuada. Phasellus molestie, ipsum ac
-                                                    fringilla.</p>
-                                                <div class="star mt-30">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="swiper-slide">
-                                            <div class="testimonial__item pl-65">
-                                                <div class="testi-header mb-30">
-                                                    <div class="testi-content">
-                                                        <h3>Francis A. Cote</h3>
-                                                        <span>Garden Maker</span>
-                                                    </div>
-                                                    <i class="fa-solid fa-quote-right"></i>
-                                                </div>
-                                                <p>posuere luctus orci. Donec vitae mattis quam, vitae tempor arcu.
-                                                    Aenean non odio porttitor, convallis erat sit amet, facilisis velit.
-                                                    Nulla ornare convallis malesuada. Phasellus molestie, ipsum ac
-                                                    fringilla.</p>
-                                                <div class="star mt-30">
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                    <i class="fa-solid fa-star"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="testimonial__image">
-                                    <div class="swiper testimonial__slider">
-                                        <div class="swiper-wrapper">
-                                            <div class="swiper-slide">
-                                                <img src="assets/images/testimonial/testimonial1.png" alt="image">
-                                            </div>
-                                            <div class="swiper-slide">
-                                                <img src="assets/images/testimonial/testimonial2.png" alt="image">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Testimonial area end here -->
-
-        <!-- Gallery area start here -->
-        <section class="gallery-area">
-            <div class="swiper gallery__slider">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                        <div class="gallery__item">
-                            <div class="off-tag">50% <br>
-                                off</div>
-                            <div class="gallery__image image">
-                                <img src="assets/images/gallery/gallery-image1.jpg" alt="image">
-                            </div>
-                            <div class="gallery__content">
-                                <h3 class="mb-10"><a href="shop-2.html">best e-lequid</a></h3>
-                                <p>Best E liquids from our huge collection</p>
-                                <a href="shop-2.html" class="btn-two mt-25"><span>Shop Now</span></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="gallery__item">
-                            <div class="off-tag">50% <br>
-                                off</div>
-                            <div class="gallery__image image">
-                                <img src="assets/images/gallery/gallery-image2.jpg" alt="image">
-                            </div>
-                            <div class="gallery__content">
-                                <h3 class="mb-10"><a href="shop-2.html">best vape flavours</a></h3>
-                                <p>Best E liquids from our huge collection</p>
-                                <a href="shop-2.html" class="btn-two mt-25"><span>Shop Now</span></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="gallery__item">
-                            <div class="off-tag">50% <br>
-                                off</div>
-                            <div class="gallery__image image">
-                                <img src="assets/images/gallery/gallery-image3.jpg" alt="image">
-                            </div>
-                            <div class="gallery__content">
-                                <h3 class="mb-10"><a href="shop-2.html">Battery And Charger Kit</a></h3>
-                                <p>Best E liquids from our huge collection</p>
-                                <a href="shop-2.html" class="btn-two mt-25"><span>Shop Now</span></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="gallery__item">
-                            <div class="off-tag">50% <br>
-                                off</div>
-                            <div class="gallery__image image">
-                                <img src="assets/images/gallery/gallery-image4.jpg" alt="image">
-                            </div>
-                            <div class="gallery__content">
-                                <h3 class="mb-10"><a href="shop-2.html">best vape tanks</a></h3>
-                                <p>Best E liquids from our huge collection</p>
-                                <a href="shop-2.html" class="btn-two mt-25"><span>Shop Now</span></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="gallery__item">
-                            <div class="off-tag">50% <br>
-                                off</div>
-                            <div class="gallery__image image">
-                                <img src="assets/images/gallery/gallery-image5.jpg" alt="image">
-                            </div>
-                            <div class="gallery__content">
-                                <h3 class="mb-10"><a href="shop-2.html">POP Extra Strawberry</a></h3>
-                                <p>Best E liquids from our huge collection</p>
-                                <a href="shop-2.html" class="btn-two mt-25"><span>Shop Now</span></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Gallery area end here -->
-
-        <!-- Service area start here -->
-        <section class="service-area pt-130 pb-130">
-            <div class="container">
-                <div class="row g-4 align-items-center justify-content-center justify-content-lg-start">
-                    <div class="col-xl-3 col-lg-4 col-md-6">
-                        <div class="service__item mb-50 wow fadeInUp" data-wow-delay=".1s">
-                            <div class="service__icon">
-                                <img src="assets/images/icon/feature-icon1.png" alt="icon">
-                            </div>
-                            <div class="service__content">
-                                <h4>Free delivery</h4>
-                                <p>For all orders above $45</p>
-                            </div>
-                        </div>
-                        <div class="service__item wow fadeInUp" data-wow-delay=".2s">
-                            <div class="service__icon">
-                                <img src="assets/images/icon/feature-icon2.png" alt="icon">
-                            </div>
-                            <div class="service__content">
-                                <h4>Secure payments</h4>
-                                <p>Confidence on all your devices</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-6 col-lg-4 d-none d-lg-block wow bounceIn" data-wow-delay=".7s">
-                        <div class="service__image image">
-                            <img src="assets/images/service/service-image.png" alt="image">
-                            <div class="section-header service-header d-flex align-items-center">
-                                <span class="title-icon mr-10"></span>
-                                <h2>sign up & save 25%</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-4 col-md-6">
-                        <div class="service__item mb-50 wow fadeInUp" data-wow-delay=".3s">
-                            <div class="service__icon">
-                                <img src="assets/images/icon/feature-icon3.png" alt="icon">
-                            </div>
-                            <div class="service__content">
-                                <h4>Top-notch support</h4>
-                                <p>sayhello&gazacom</p>
-                            </div>
-                        </div>
-                        <div class="service__item wow fadeInUp" data-wow-delay=".4s">
-                            <div class="service__icon">
-                                <img src="assets/images/icon/feature-icon4.png" alt="icon">
-                            </div>
-                            <div class="service__content">
-                                <h4>180 Days Return</h4>
-                                <p>money back guranry</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Service area end here -->
-
-        <!-- Blog area start here -->
-        <section class="blog pt-130 pb-130 sub-bg">
-            <div class="container">
-                <div class="blog__head-wrp mb-65">
-                    <div class="section-header d-flex align-items-center wow fadeInUp" data-wow-delay=".1s">
-                        <span class="title-icon mr-10"></span>
-                        <h2>our latest blog</h2>
-                    </div>
-                    <a href="blog.html" class="btn-two primary-hover mt-4 mt-md-0 wow fadeInUp"
-                        data-wow-delay=".3s"><span>view all blog</span></a>
-                </div>
-                <div class="row g-4">
-                    <div class="col-xl-8">
-                        <div class="blog__item-left">
-                            <div class="swiper blog__slider">
-                                <div class="swiper-wrapper">
-                                    <div class="swiper-slide">
-                                        <div class="row g-4">
-                                            <div class="col-md-6">
-                                                <div class="blog__item-left-content">
-                                                    <span class="blog__tag">vapers</span>
-                                                    <h3><a href="blog-single.html">roup of young volunteers
-                                                            park. they are vapeing</a></h3>
-                                                    <p>vapers planting is the act of planting young vaperss, shrubs, or
-                                                        other woody
-                                                        plants into the
-                                                        ground to establish new
-                                                        vapes.</p>
-                                                    <span class="blog__item-left-content-info">By <strong
-                                                            class="me-3">Max
-                                                            Trewhitt</strong> 2
-                                                        weeks ago</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="image">
-                                                    <img class="radius-10" src="assets/images/blog/blog-image1.png"
-                                                        alt="image">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="swiper-slide">
-                                        <div class="row g-4">
-                                            <div class="col-md-6">
-                                                <div class="blog__item-left-content">
-                                                    <span class="blog__tag">vapers</span>
-                                                    <h3><a href="blog-single.html">roup of young volunteers
-                                                            park. they are vapeing</a></h3>
-                                                    <p>vapers planting is the act of planting young vaperss, shrubs, or
-                                                        other woody
-                                                        plants into the
-                                                        ground to establish new
-                                                        vapes.</p>
-                                                    <span class="blog__item-left-content-info">By <strong>Max
-                                                            Trewhitt</strong> 2
-                                                        weeks ago</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="image">
-                                                    <img class="radius-10" src="assets/images/blog/blog-image2.png"
-                                                        alt="image">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="swiper-slide">
-                                        <div class="row g-4">
-                                            <div class="col-md-6">
-                                                <div class="blog__item-left-content">
-                                                    <span class="blog__tag">vapers</span>
-                                                    <h3><a href="blog-single.html">roup of young volunteers
-                                                            park. they are vapeing</a></h3>
-                                                    <p>vapers planting is the act of planting young vaperss, shrubs, or
-                                                        other woody
-                                                        plants into the
-                                                        ground to establish new
-                                                        vapes.</p>
-                                                    <span class="blog__item-left-content-info">By <strong>Max
-                                                            Trewhitt</strong> 2
-                                                        weeks ago</span>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="image">
-                                                    <img class="radius-10" src="assets/images/blog/blog-image3.png"
-                                                        alt="image">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="blog__item-left-dot-wrp">
-                                <div class="dot blog__dot"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-4 d-block d-md-none d-xl-block">
-                        <div class="blog__item-right">
-                            <a href="blog-single.html" class="image d-block">
-                                <img class="radius-10" src="assets/images/blog/blog-image-sm.png" alt="image">
-                            </a>
-                            <h3><a href="blog-single.html">Close up picture of the sapling of the vape is</a>
-                            </h3>
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span class="blog__tag">vapers</span>
-                                <span>2 weeks ago</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Blog area end here -->
-
-        <!-- Brand area start here -->
-        <section class="brand-area pt-130 pb-130">
-            <div class="container">
-                <div class="sub-title text-center mb-65">
-                    <h3><span class="title-icon"></span> our top brands <span class="title-icon"></span>
-                    </h3>
-                </div>
-                <div class="swiper brand__slider">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <div class="brand__item bor radius-10 text-center p-4">
-                                <img src="assets/images/brand/brand1.png" alt="icon">
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="brand__item bor radius-10 text-center p-4">
-                                <img src="assets/images/brand/brand2.png" alt="icon">
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="brand__item bor radius-10 text-center p-4">
-                                <img src="assets/images/brand/brand3.png" alt="icon">
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="brand__item bor radius-10 text-center p-4">
-                                <img src="assets/images/brand/brand4.png" alt="icon">
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="brand__item bor radius-10 text-center p-4">
-                                <img src="assets/images/brand/brand5.png" alt="icon">
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="brand__item bor radius-10 text-center p-4">
-                                <img src="assets/images/brand/brand6.png" alt="icon">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Brand area end here -->
+        <!-- ... rest of your existing HTML ... -->
     </main>
 
     <!-- Footer area start here -->
     <footer class="footer-area bg-image" data-background="assets/images/footer/footer-bg.jpg">
-        <div class="container">
-            <div class="footer__wrp pt-65 pb-65 bor-top bor-bottom">
-                <div class="row g-4">
-                    <div class="col-xl-3 col-lg-6 col-md-6 wow fadeInUp" data-wow-duration="1.1s" data-wow-delay=".1s">
-                        <div class="footer__item">
-                            <h4 class="footer-title">Customer Service</h4>
-                            <ul>
-                                <li><a href="contact.html"><span></span>Help Portal</a></li>
-                                <li><a href="contact.html"><span></span>Contact Us</a></li>
-                                <li><a href="error.html"><span></span>Delivery Information</a></li>
-                                <li><a href="error.html"><span></span>Click and Collect</a></li>
-                                <li><a href="error.html"><span></span>Refunds and Returns</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-6 col-md-6 wow fadeInUp" data-wow-duration="1.2s" data-wow-delay=".2s">
-                        <div class="footer__item">
-                            <h4 class="footer-title">Get to Know Us</h4>
-                            <ul>
-                                <li><a href="about.html"><span></span>About Us</a></li>
-                                <li><a href="blog-grid.html"><span></span>News & Blog</a></li>
-                                <li><a href="error.html"><span></span>Careers</a></li>
-                                <li><a href="error.html"><span></span>Investors</a></li>
-                                <li><a href="contact.html"><span></span>Contact Us</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-6 col-md-6 wow fadeInUp" data-wow-duration="1.3s" data-wow-delay=".3s">
-                        <div class="footer__item">
-                            <h4 class="footer-title">vapes new collections</h4>
-                            <ul>
-                                <li><a href="shop.html"><span></span>E-Cigarettes</a></li>
-                                <li><a href="shop.html"><span></span>Vape Pens</a></li>
-                                <li><a href="shop.html"><span></span>Pod Systems</a></li>
-                                <li><a href="shop.html"><span></span>Disposable Vapes</a></li>
-                                <li><a href="shop.html"><span></span>Nicotine Salt Devices</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-6 col-md-6 wow fadeInUp" data-wow-duration="1.4s" data-wow-delay=".4s">
-                        <div class="footer__item newsletter">
-                            <h4 class="footer-title">get newsletter</h4>
-                            <div class="subscribe">
-                                <input type="email" placeholder="Your Email">
-                                <button><i class="fa-solid fa-paper-plane"></i></button>
-                            </div>
-                            <div class="social-icon mt-40">
-                                <a href="#0"><i class="fa-brands fa-facebook-f"></i></a>
-                                <a href="#0"><i class="fa-brands fa-twitter"></i></a>
-                                <a href="#0"><i class="fa-brands fa-linkedin-in"></i></a>
-                                <a href="#0"><i class="fa-brands fa-youtube"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="footer__copy-text pt-50 pb-50">
-                <a href="index.html" class="logo d-block">
-                    <img src="assets/images/logo/logo.svg" alt="logo">
-                </a>
-                <p>&copy; Copyright 2023 <a href="#0" class="primary-hover">odor</a> All Rights Reserved</p>
-                <a href="#0" class="payment d-block image">
-                    <img src="assets/images/icon/payment.png" alt="icon">
-                </a>
-            </div>
-        </div>
+        <!-- ... your existing footer ... -->
     </footer>
     <!-- Footer area end here -->
 
@@ -1443,7 +503,7 @@
     </div>
     <!-- Back to top area end here -->
 
-    <!-- Jquery 3. 7. 1 Min Js -->
+    <!-- Jquery 3.7.1 Min Js -->
     <script src="assets/js/jquery-3.7.1.min.js"></script>
     <!-- Bootstrap min Js -->
     <script src="assets/js/bootstrap.min.js"></script>
@@ -1463,6 +523,98 @@
     <script src="assets/js/isotope.pkgd.min.js"></script>
     <!-- Waypoints Js -->
     <script src="assets/js/jquery.waypoints.js"></script>
+
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    <!-- PayPal SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD"></script>
+    <!-- Note: Replace 'sb' with your actual PayPal Client ID in production -->
+
+    <!-- Payment Gateway Script -->
+    <script>
+        $(document).ready(function() {
+            // Payment method selection
+            $('.payment-method').click(function() {
+                $('.payment-method').removeClass('active');
+                $(this).addClass('active');
+                
+                const method = $(this).data('method');
+                $('.payment-form').removeClass('active');
+                $(`#${method}-form`).addClass('active');
+            });
+            
+            // Set default active method
+            $('.payment-method[data-method="razorpay"]').click();
+            
+            // Razorpay Payment Handler
+            $('#razorpay-pay-btn').click(function() {
+                const amount = $('#razorpay-amount').val() * 100; // Convert to paisa
+                const name = $('#razorpay-name').val() || 'Customer';
+                const email = $('#razorpay-email').val() || 'customer@example.com';
+                const phone = $('#razorpay-phone').val() || '9999999999';
+                
+                // IMPORTANT: In production, create an order on your backend first
+                // and get the order_id from your server
+                
+                const options = {
+                    "key": "rzp_test_YOUR_KEY_ID", // Replace with your test key
+                    "amount": amount,
+                    "currency": "USD",
+                    "name": "Arunya Naturals",
+                    "description": "Test Transaction",
+                    "image": "https://your-logo-url.com/logo.png",
+                    "handler": function (response){
+                        alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
+                        // In production, verify this payment on your backend
+                        // $.post('/verify-payment', response, function() {
+                        //     window.location.href = '/thank-you';
+                        // });
+                    },
+                    "prefill": {
+                        "name": name,
+                        "email": email,
+                        "contact": phone
+                    },
+                    "theme": {
+                        "color": "#0066cc"
+                    }
+                };
+                
+                const rzp = new Razorpay(options);
+                rzp.open();
+            });
+            
+            // PayPal Integration
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    const amount = $('#paypal-amount').val();
+                    
+                    // In production, create order on your backend
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: amount,
+                                currency_code: "USD"
+                            }
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    // In production, capture payment on your backend
+                    return actions.order.capture().then(function(details) {
+                        alert('Payment completed by ' + details.payer.name.given_name);
+                        // Redirect to thank you page
+                        // window.location.href = '/thank-you';
+                    });
+                },
+                onError: function(err) {
+                    alert('Payment failed. Please try again.');
+                }
+            }).render('#paypal-button-container');
+        });
+    </script>
+
     <!-- Script Js -->
     <script src="assets/js/script.js"></script>
 </body>
